@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 
-export default function ChatGPTUI() {
+export default function chatbotUI() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
-  const [suggestions, setSuggestions] = useState(['Suggestion 1', 'Suggestion 2', 'Suggestion 3','Suggestion 4', 'Suggestion 5']);
+  const [suggestions, setSuggestions] = useState(['Suggestion 1', 'Suggestion 2', 'Suggestion 3', 'Suggestion 4', 'Suggestion 5']);
+  const flatListRef = useRef(null); 
 
   const handleSend = () => {
     if (inputText.trim()) {
@@ -14,13 +15,18 @@ export default function ChatGPTUI() {
         { id: (Date.now() + 1).toString(), text: 'replied to user ', isUser: false },
       ]);
       setInputText('');
-      setSuggestions([]); 
+      setSuggestions([]);
+
+      
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
     }
   };
 
   const handleSuggestionTap = (suggestion) => {
     setInputText(suggestion);
-    setSuggestions([]); 
+    setSuggestions([]);
   };
 
   const renderItem = ({ item }) => (
@@ -38,26 +44,26 @@ export default function ChatGPTUI() {
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={90}>
       <FlatList
+        ref={flatListRef}
         data={messages}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.chatContainer}
       />
 
-   
-      <View >
-      {suggestions.length > 0 && (
-        <FlatList
-          data={suggestions}
-          renderItem={renderSuggestion}
-          keyExtractor={(item, index) => index.toString()}
-          style={styles.suggestionContainer}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        />
-      )}
-      </View >
-  
+      <View>
+        {suggestions.length > 0 && (
+          <FlatList
+            data={suggestions}
+            renderItem={renderSuggestion}
+            keyExtractor={(item, index) => index.toString()}
+            style={styles.suggestionContainer}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          />
+        )}
+      </View>
+
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.textInput}
@@ -77,7 +83,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    marginTop:30,
+    marginTop: 30,
   },
   chatContainer: {
     paddingHorizontal: 8,
@@ -114,7 +120,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderTopWidth: 1,
     borderColor: '#ccc',
-    marginBottom: 0, 
+    marginBottom: 0,
   },
   textInput: {
     flex: 1,
@@ -137,11 +143,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   suggestionContainer: {
-    
-    paddingVertical: 0, 
+    paddingVertical: 0,
     paddingHorizontal: 8,
-    borderBottomWidth: 0, 
-    marginBottom:5,
+    borderBottomWidth: 0,
+    marginBottom: 5,
   },
   suggestionItem: {
     backgroundColor: '#e5e5e5',
